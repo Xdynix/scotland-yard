@@ -42,6 +42,11 @@ repos:
       - id: ruff-format
   - repo: local
     hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types: [ python ]
       - id: uv-lock-check
         name: check UV lock file
         entry: uv lock --check

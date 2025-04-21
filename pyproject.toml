@@ -6,6 +6,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "mypy>=1.15.0",
     "pre-commit>=4.2.0",
 ]
 
@@ -38,3 +39,7 @@ ignore = [
     "E114", # indentation-with-invalid-multiple-comment
     "E117", # over-indented
 ]
+
+[tool.mypy]
+strict = true
+cache_dir = ".cache/mypy"
