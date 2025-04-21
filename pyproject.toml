@@ -25,6 +25,15 @@ default_item_type = "cmd"
 cmd = "pre-commit run --all-files"
 help = "execute linters"
 
+[tool.poe.tasks.dev]
+cmd = """
+docker compose
+    -f docker-compose.yml
+    -f docker-compose.dev.yml
+    watch
+"""
+help = "start development server"
+
 [tool.ruff]
 cache-dir = ".cache/ruff"
 
