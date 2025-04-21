@@ -5,3 +5,23 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    environment:
+      POSTGRES__MIN_SIZE: "10"
+      POSTGRES__MAX_SIZE: "80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    healthcheck:
+      test: bash -c 'pg_isready -U "$$POSTGRES_USER" -h localhost'
+      interval: 3s
+      retries: 20
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./var/pgdata:/var/lib/postgresql/data

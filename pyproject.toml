@@ -4,6 +4,9 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.115.12",
+    "pydantic-settings>=2.9.1",
+    "tortoise-cli>=0.1.2",
+    "tortoise-orm[asyncpg]>=0.25.0",
 ]
 
 [dependency-groups]
@@ -33,6 +36,14 @@ docker compose
     watch
 """
 help = "start development server"
+
+[tool.poe.tasks.pyshell]
+cmd = "docker compose exec -it app tortoise-cli -c app.settings.TORTOISE_ORM shell"
+help = "start interactive Python shell"
+
+[tool.poe.tasks.dbshell]
+cmd = "docker compose exec -it postgres bash -c 'psql -U $POSTGRES_USER -h localhost'"
+help = "start interactive database shell"
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
