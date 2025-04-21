@@ -8,3 +8,33 @@ dependencies = []
 dev = [
     "pre-commit>=4.2.0",
 ]
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+
+[tool.ruff.lint]
+select = [
+    "F", # Pyflakes
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "I", # isort
+    "PGH", # pygrep-hooks
+    "UP", # pyupgrade
+    "S", # flake8-bandit
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "FAST", # FastAPI
+    "PTH", # flake8-use-pathlib
+    "FURB", # refurb
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    # Suppressed by ruff formatter.
+    "W191", # tab-indentation
+    "E111", # indentation-with-invalid-multiple
+    "E114", # indentation-with-invalid-multiple-comment
+    "E117", # over-indented
+]
