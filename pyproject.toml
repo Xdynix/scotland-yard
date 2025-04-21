@@ -3,3 +3,8 @@ name = "scotland-yard"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+]

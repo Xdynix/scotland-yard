@@ -1,0 +1,44 @@
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.22.0
+    hooks:
+      - id: commitlint
+        stages: [ commit-msg ]
+        additional_dependencies:
+          - '@commitlint/config-conventional'
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: pretty-format-json
+        args:
+          - --autofix
+          - --no-sort-keys
+          - --indent
+          - '2'
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+        args:
+          - --config
+          - package.json
+          - --configPointer
+          - /markdownlint
+  - repo: local
+    hooks:
+      - id: uv-lock-check
+        name: check UV lock file
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        files: ^pyproject.toml$

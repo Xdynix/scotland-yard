@@ -1,0 +1,29 @@
+{
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "header-max-length": [
+        2,
+        "always",
+        50
+      ],
+      "body-max-length": [
+        2,
+        "always",
+        72
+      ]
+    }
+  },
+  "markdownlint": {
+    "default": true,
+    "MD007": {
+      "indent": 4
+    },
+    "MD013": {
+      "line_length": 88,
+      "strict": true
+    }
+  }
+}
