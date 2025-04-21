@@ -7,8 +7,21 @@ dependencies = []
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
+    "poethepoet>=0.34.0",
     "pre-commit>=4.2.0",
 ]
+
+[tool.poe.tasks.dev-setup]
+sequence = [
+    "uv sync",
+    "pre-commit install",
+]
+help = "set up development environment"
+default_item_type = "cmd"
+
+[tool.poe.tasks.lint]
+cmd = "pre-commit run --all-files"
+help = "execute linters"
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
