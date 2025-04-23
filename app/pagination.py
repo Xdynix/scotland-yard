@@ -5,12 +5,14 @@ from pydantic import BaseModel, Field
 from tortoise.models import Model
 from tortoise.queryset import QuerySet
 
+from .types import Id
+
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=Model)
 
 
 class PaginationParam(BaseModel):
-    cursor: str | None = Field(None, pattern=r"\d{1,32}")
+    cursor: Id | None = None
     limit: int = Field(10, ge=1, le=100)
 
 
@@ -19,12 +21,12 @@ PaginationQuery = Annotated[PaginationParam, Query()]
 
 class Page(BaseModel, Generic[T]):
     items: list[T]
-    next_cursor: str | None = None
+    next_cursor: Id | None = None
 
 
 async def paginate(
     query: QuerySet[ModelT],
-    cursor: str | None = None,
+    cursor: Id | None = None,
     limit: int = 10,
     pk_field: str = "id",
 ) -> Any:
@@ -36,7 +38,7 @@ async def paginate(
 
     next_cursor: str | None
     if len(items) > limit:
-        next_cursor = str(getattr(items[-1], pk_field))
+        next_cursor = getattr(items[-1], pk_field)
         items = items[:limit]
     else:
         next_cursor = None

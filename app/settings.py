@@ -22,10 +22,23 @@ class PostgresSettings(BaseModel):
         )
 
 
+class JWTSettings(BaseModel):
+    secret_key: str = "secret-key"  # noqa: S105
+    algorithm: str = "HS256"
+
+
+class AuthSettings(BaseModel):
+    auth_code_expire_minutes: int = 15
+    access_token_expire_minutes: int = 60
+    refresh_token_expire_minutes: int = 60 * 24 * 3650  # 10 years
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     postgres: PostgresSettings = PostgresSettings()
+    jwt: JWTSettings = JWTSettings()
+    auth: AuthSettings = AuthSettings()
 
 
 settings = Settings()
@@ -42,3 +55,7 @@ TORTOISE_ORM = {
     "use_tz": True,
     "timezone": "UTC",
 }
+
+JWT = settings.jwt
+
+AUTH = settings.auth
