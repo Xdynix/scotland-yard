@@ -3,10 +3,11 @@ from fastapi.responses import JSONResponse
 from tortoise.contrib.fastapi import register_tortoise
 
 from . import auth, settings
-from .routers import organizations
+from .routers import misc, organizations
 
 app = FastAPI()
 
+app.include_router(misc.router)
 app.include_router(auth.router)
 app.include_router(organizations.router)
 
