@@ -11,11 +11,12 @@ app.include_router(misc.router)
 app.include_router(auth.router)
 app.include_router(organizations.router)
 
-register_tortoise(
-    app,
-    config=settings.TORTOISE_ORM,
-    generate_schemas=True,
-)
+if not settings.TESTING:  # pragma: no cover
+    register_tortoise(
+        app,
+        config=settings.TORTOISE_ORM,
+        generate_schemas=True,
+    )
 
 
 @app.exception_handler(auth.OAuthException)

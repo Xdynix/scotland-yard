@@ -3,6 +3,7 @@ name = "scotland-yard"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "faker>=37.1.0",
     "fastapi[standard]>=0.115.12",
     "pydantic-settings>=2.9.1",
     "pyjwt[crypto]>=2.10.1",
@@ -15,6 +16,12 @@ dev = [
     "mypy>=1.15.0",
     "poethepoet>=0.34.0",
     "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-cov>=6.1.1",
+    "pytest-env>=1.1.5",
+    "pytest-mock>=3.14.0",
+    "pytest-randomly>=3.16.0",
 ]
 
 [tool.poe.tasks.dev-setup]
@@ -46,6 +53,18 @@ help = "start interactive Python shell"
 cmd = "docker compose exec -it postgres bash -c 'psql -U $POSTGRES_USER -h localhost'"
 help = "start interactive database shell"
 
+[tool.poe.tasks.test]
+cmd = """
+docker compose
+    -f docker-compose.yml
+    -f docker-compose.test.yml
+    up
+    --abort-on-container-exit
+    --exit-code-from app
+    --build
+"""
+help = "start development server"
+
 [tool.ruff]
 cache-dir = ".cache/ruff"
 
@@ -76,6 +95,47 @@ ignore = [
     "E117", # over-indented
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101", # assert
+    "S105", # hardcoded-password-string
+]
+
 [tool.mypy]
 strict = true
 cache_dir = ".cache/mypy"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+cache_dir = ".cache/pytest"
+addopts = [
+    "--doctest-modules",
+    "--import-mode", "importlib",
+    "--cov-config", "pyproject.toml",
+    "--cov-report", "term",
+    "--cov-report", "html",
+    "--cov-fail-under", "100",
+]
+markers = [
+    "only: shorthand mark used to select a small subset of test cases for debugging",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.pytest_env]
+TESTING = "true"
+
+[tool.coverage.run]
+branch = true
+data_file = ".cache/coverage/data.db"
+disable_warnings = ["no-data-collected"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@overload",
+]
+
+[tool.coverage.html]
+directory = ".cache/cov-report"

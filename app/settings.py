@@ -21,6 +21,18 @@ class PostgresSettings(BaseModel):
             f"&maxsize={self.max_size}"
         )
 
+    @property
+    def test_database(self) -> str:
+        return f"test_{self.database}"
+
+    @property
+    def test_url(self) -> str:
+        return (
+            f"postgres://{self.user}:{self.password}"
+            f"@{self.host}:{self.port}"
+            f"/{self.test_database}"
+        )
+
 
 class JWTSettings(BaseModel):
     secret_key: str = "secret-key"  # noqa: S105
@@ -36,6 +48,7 @@ class AuthSettings(BaseModel):
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
+    testing: bool = False
     postgres: PostgresSettings = PostgresSettings()
     jwt: JWTSettings = JWTSettings()
     auth: AuthSettings = AuthSettings()
@@ -43,9 +56,13 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+TESTING = settings.testing
+
+POSTGRES = settings.postgres
+
 TORTOISE_ORM = {
     "connections": {
-        "default": settings.postgres.url,
+        "default": POSTGRES.url,
     },
     "apps": {
         "models": {

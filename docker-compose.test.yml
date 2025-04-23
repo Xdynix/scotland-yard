@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      args:
+        INSTALL_DEV_DEPS: "true"
+    command: [ "pytest", "--cov", "app" ]
+    volumes:
+      - ./.cache:/app/.cache
+
+  postgres:
+    volumes:
+      - ./var/pgdata-test:/var/lib/postgresql/data
