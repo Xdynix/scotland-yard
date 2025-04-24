@@ -3,13 +3,14 @@ from fastapi.responses import JSONResponse
 from tortoise.contrib.fastapi import register_tortoise
 
 from . import auth, settings
-from .routers import misc, organizations
+from .routers import misc, organizations, users
 
 app = FastAPI()
 
 app.include_router(misc.router)
 app.include_router(auth.router)
 app.include_router(organizations.router)
+app.include_router(users.router)
 
 if not settings.TESTING:  # pragma: no cover
     register_tortoise(
