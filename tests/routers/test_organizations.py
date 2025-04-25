@@ -7,28 +7,51 @@ from faker import Faker
 from httpx import AsyncClient
 
 from app.models import Organization
-from tests.shorthands import any_number, any_str, uses_db
+from tests.shorthands import any_str, uses_db
+
+
+@pytest.fixture
+async def organization(faker: Faker) -> Organization:
+    return await Organization.create(name=faker.company())
+
+
+@pytest.fixture
+def serialized_organization(organization: Organization) -> dict[str, Any]:
+    return {
+        "id": organization.id,
+        "create_time": any_str,
+        "update_time": any_str,
+        "name": organization.name,
+    }
 
 
 @uses_db
 class TestListOrganizations:
-    async def test_smoke(self, faker: Faker, client: AsyncClient) -> None:
-        name = faker.company()
-        await Organization.create(name=name)
-
+    async def test_smoke(
+        self,
+        client: AsyncClient,
+        organization: Organization,  # noqa: ARG002
+        serialized_organization: dict[str, Any],
+    ) -> None:
         response = await client.get("/organizations/")
         assert response.status_code == 200
         assert response.json() == {
-            "items": [
-                {
-                    "id": any_number,
-                    "create_time": any_str,
-                    "update_time": any_str,
-                    "name": name,
-                }
-            ],
+            "items": [serialized_organization],
             "next_cursor": None,
         }
+
+
+@uses_db
+class TestGetOrganization:
+    async def test_smoke(
+        self,
+        client: AsyncClient,
+        organization: Organization,
+        serialized_organization: dict[str, Any],
+    ) -> None:
+        response = await client.get(f"/organizations/{organization.id}")
+        assert response.status_code == 200
+        assert response.json() == serialized_organization
 
 
 @uses_db
