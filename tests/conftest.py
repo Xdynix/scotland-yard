@@ -1,3 +1,8 @@
+"""
+Root test fixtures for spinning up the test database, rolling back database
+transactions, and providing an HTTPX client.
+"""
+
 import contextlib
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager

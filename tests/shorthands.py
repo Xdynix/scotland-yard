@@ -9,6 +9,7 @@ T = TypeVar("T")
 
 
 def uses_db(func: T) -> T:
+    """Decorator to mark a test as using the database fixture."""
     decorator = pytest.mark.usefixtures("db")
     return cast(T, decorator(func))
 
