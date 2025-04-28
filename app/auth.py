@@ -1,3 +1,7 @@
+"""
+Authentication endpoints and utilities for a simulated OAuth2 flow.
+"""
+
 __all__ = ("OAuthRequestSource",)
 
 from datetime import UTC, datetime, timedelta
@@ -7,7 +11,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 from uuid import uuid4
 
 import jwt
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from pydantic import BaseModel, Field, HttpUrl
@@ -20,7 +24,7 @@ auth_settings = settings.AUTH
 
 router = APIRouter(
     prefix="",
-    tags=["auth"],
+    tags=["Auth"],
 )
 
 
@@ -70,11 +74,27 @@ def verify_jwt(token: Token, type_: TokenType) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-@router.get("/authorize")
+@router.get(
+    "/authorize",
+    summary="Authorize Client",
+    description=(
+        "Simulate an OAuth2 authorization endpoint. "
+        "Issues an authorization code bound to the given Organization ID, "
+        "then redirects back to the `redirect_uri` with `code` and `state`."
+    ),
+)
 def authorize(
-    client_id: Id,
-    redirect_uri: HttpUrl,
-    state: Annotated[str, Field(max_length=512)] = "",
+    client_id: Annotated[
+        Id,
+        Query(description="Organization ID for which to issue an authorization code."),
+    ],
+    redirect_uri: Annotated[
+        HttpUrl,
+        Query(description="Callback URL to redirect to with the authorization code."),
+    ],
+    state: Annotated[
+        str, Query(max_length=512, description="Opaque state value returned unchanged.")
+    ] = "",
 ) -> RedirectResponse:
     auth_code = create_jwt(
         data={"sub": str(client_id)},
@@ -96,9 +116,18 @@ def authorize(
 
 
 class TokenRequest(BaseModel):
-    grant_type: str
-    code: Token = ""
-    refresh_token: Token = ""
+    grant_type: str = Field(
+        description="Either 'authorization_code' or 'refresh_token'.",
+        examples=["authorization_code"],
+    )
+    code: Token = Field(
+        "",
+        description="Authorization code returned by `/authorize`.",
+    )
+    refresh_token: Token = Field(
+        "",
+        description="Refresh token received from a previous token exchange.",
+    )
 
 
 class TokenResponse(BaseModel):
@@ -108,7 +137,14 @@ class TokenResponse(BaseModel):
     token_type: Literal["bearer"] = "bearer"  # noqa: S105
 
 
-@router.post("/token")
+@router.post(
+    "/token",
+    summary="Token Exchange",
+    description=(
+        "Exchange an authorization code or a refresh token "
+        "for a new access token (and refresh token)."
+    ),
+)
 def token(request: Annotated[TokenRequest, Form()]) -> TokenResponse:
     try:
         match request.grant_type:
@@ -172,6 +208,10 @@ def get_request_source(token: Annotated[str, Depends(oauth2_scheme)]) -> Request
 OAuthRequestSource = Annotated[RequestSource, Depends(get_request_source)]
 
 
-@router.get("/me")
+@router.get(
+    "/me",
+    summary="Get Current Request Source",
+    description="Return the identity extracted from the supplied access token.",
+)
 def get_me(rs: OAuthRequestSource) -> OAuthRequestSource:
     return rs

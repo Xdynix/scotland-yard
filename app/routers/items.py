@@ -1,8 +1,12 @@
+"""
+Endpoints for listing items and their sharing links.
+"""
+
 from datetime import datetime
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Path
 from pydantic import BaseModel
 
 from ..auth import OAuthRequestSource
@@ -15,7 +19,7 @@ from ..utils import get_object_or_404
 
 router = APIRouter(
     prefix="",
-    tags=["items"],
+    tags=["Items"],
 )
 
 
@@ -40,10 +44,18 @@ class SharingLink(BaseModel):
     expire_time: datetime | None
 
 
-@router.get("/users/{user_id}/items/", response_model=Page[Item])
+@router.get(
+    "/users/{user_id}/items/",
+    summary="List a User's Top-Level Items",
+    description="List all non-folder-children items belonging to the given user.",
+    response_model=Page[Item],
+)
 async def list_user_items(
     rs: OAuthRequestSource,
-    user_id: Id,
+    user_id: Annotated[
+        Id,
+        Path(description="ID of the user whose items to list."),
+    ],
     page_query: PaginationQuery,
 ) -> Any:
     users = UserDB.filter(organization_id=rs.organization_id)
@@ -53,10 +65,18 @@ async def list_user_items(
     return await paginate(query, cursor=page_query.cursor, limit=page_query.limit)
 
 
-@router.get("/folders/{folder_id}/items/", response_model=Page[Item])
+@router.get(
+    "/folders/{folder_id}/items/",
+    summary="List Folder's Children.",
+    description="List all direct children of a folder.",
+    response_model=Page[Item],
+)
 async def list_folder_items(
     rs: OAuthRequestSource,
-    folder_id: Id,
+    folder_id: Annotated[
+        Id,
+        Path(description="ID of the parent folder."),
+    ],
     page_query: PaginationQuery,
 ) -> Any:
     folders = ItemDB.filter(
@@ -69,7 +89,12 @@ async def list_folder_items(
     return await paginate(query, cursor=page_query.cursor, limit=page_query.limit)
 
 
-@router.get("/items/{item_id}/sharing-links/", response_model=Page[SharingLink])
+@router.get(
+    "/items/{item_id}/sharing-links/",
+    summary="List Sharing Links for an Item",
+    description="Retrieve all sharing links for a given item.",
+    response_model=Page[SharingLink],
+)
 async def list_item_sharing_links(
     rs: OAuthRequestSource,
     item_id: Id,

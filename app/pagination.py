@@ -1,3 +1,7 @@
+"""
+Pagination utilities for cursor-based paging of Tortoise ORM QuerySets.
+"""
+
 from typing import Annotated, Any, Generic, TypeVar
 
 from fastapi import Query
@@ -30,6 +34,18 @@ async def paginate(
     limit: int = 10,
     pk_field: str = "id",
 ) -> Any:
+    """
+    Apply cursor-based pagination to a Tortoise ORM QuerySet.
+
+    - **query**: the QuerySet of ModelT to paginate.
+    - **cursor**: return objects with primary key ≤ this value, if provided.
+    - **limit**: maximum number of objects to return.
+
+    Returns a dict with:
+
+    - **items**: list of fetched model instances.
+    - **next_cursor**: the PK for the next page, or None if no further pages.
+    """
     query = query.order_by(f"-{pk_field}")
     if cursor is not None:
         query = query.filter(**{f"{pk_field}__lte": cursor})

@@ -1,7 +1,11 @@
-from datetime import datetime
-from typing import Any
+"""
+Endpoints for listing and retrieving organizations.
+"""
 
-from fastapi import APIRouter
+from datetime import datetime
+from typing import Annotated, Any
+
+from fastapi import APIRouter, Path
 from pydantic import BaseModel
 
 from ..models import Organization as OrganizationDB
@@ -11,7 +15,7 @@ from ..utils import get_object_or_404
 
 router = APIRouter(
     prefix="/organizations",
-    tags=["organizations"],
+    tags=["Organizations"],
 )
 
 
@@ -22,12 +26,27 @@ class Organization(BaseModel):
     name: str
 
 
-@router.get("/", response_model=Page[Organization])
+@router.get(
+    "/",
+    summary="List Organizations",
+    description="Retrieve a paginated list of all organizations.",
+    response_model=Page[Organization],
+)
 async def list_organizations(page_query: PaginationQuery) -> Any:
     query = OrganizationDB.all()
     return await paginate(query, cursor=page_query.cursor, limit=page_query.limit)
 
 
-@router.get("/{organization_id}", response_model=Organization)
-async def get_organization(organization_id: Id) -> Any:
+@router.get(
+    "/{organization_id}",
+    summary="Get an Organization",
+    description="Retrieve details of a single organization by its ID.",
+    response_model=Organization,
+)
+async def get_organization(
+    organization_id: Annotated[
+        Id,
+        Path(description="ID of the organization to retrieve."),
+    ],
+) -> Any:
     return await get_object_or_404(OrganizationDB, id=organization_id)

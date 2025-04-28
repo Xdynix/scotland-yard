@@ -14,6 +14,23 @@ async def get_object_or_404(
     *args: Q,
     **kwargs: Any,
 ) -> ModelT:
+    """
+    Retrieve a single object or raise HTTP 404 if not found.
+
+    Parameters:
+
+    - query: either a Tortoise QuerySet or a Model class.
+    - *args, **kwargs: filters to pass into QuerySet.get().
+
+    Returns:
+
+    - The model instance if found.
+
+    Raises:
+
+    - HTTPException(status_code=404) if no matching object exists.
+    """
+
     if not isinstance(query, QuerySet):
         query = query.all()
     try:
