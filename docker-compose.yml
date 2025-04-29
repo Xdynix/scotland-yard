@@ -3,8 +3,6 @@ services:
     build:
       context: .
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       POSTGRES__MIN_SIZE: "10"
       POSTGRES__MAX_SIZE: "80"
