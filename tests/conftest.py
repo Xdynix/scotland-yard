@@ -8,9 +8,11 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import asyncpg  # type: ignore[import-untyped]
+import pytest
 import pytest_asyncio
 from asyncpg import Connection
 from httpx import ASGITransport, AsyncClient
+from pytest_mock import MockerFixture
 from tortoise import Tortoise
 from tortoise.transactions import in_transaction
 
@@ -84,3 +86,8 @@ async def client() -> AsyncGenerator[AsyncClient]:
         base_url="http://test",
     ) as client:
         yield client
+
+
+@pytest.fixture(autouse=True)
+def disable_random_error(mocker: MockerFixture) -> None:
+    mocker.patch.object(settings, "RANDOM_ERROR_RATE", 0)

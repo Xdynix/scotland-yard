@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     testing: bool = False
+    random_error_rate: float = 0.001
     postgres: PostgresSettings = PostgresSettings()
     jwt: JWTSettings = JWTSettings()
     auth: AuthSettings = AuthSettings()
@@ -57,6 +58,8 @@ class Settings(BaseSettings):
 settings = Settings()
 
 TESTING = settings.testing
+
+RANDOM_ERROR_RATE = settings.random_error_rate
 
 POSTGRES = settings.postgres
 
