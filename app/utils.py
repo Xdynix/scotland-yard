@@ -1,12 +1,20 @@
-from typing import Any, TypeVar
+from collections.abc import Callable, Coroutine
+from functools import wraps
+from typing import Any, ParamSpec, TypeVar
 
 from fastapi import HTTPException, status
+from tortoise import Tortoise
 from tortoise.exceptions import DoesNotExist
 from tortoise.expressions import Q
 from tortoise.models import Model
 from tortoise.queryset import QuerySet
 
+from app import settings
+
 ModelT = TypeVar("ModelT", bound=Model)
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 async def get_object_or_404(
@@ -37,3 +45,31 @@ async def get_object_or_404(
         return await query.get(*args, **kwargs)
     except DoesNotExist as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from e
+
+
+def with_tortoise(
+    func: Callable[P, Coroutine[Any, Any, R]],
+) -> Callable[P, Coroutine[Any, Any, R]]:  # pragma: no cover
+    """Wrap an async function with Tortoise ORM setup and teardown.
+
+    Args:
+        func: Async function requiring a Tortoise connection.
+
+    Returns:
+        Async wrapper that manages Tortoise lifecycle.
+    """
+
+    @wraps(func)
+    async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        await Tortoise.init(
+            db_url=settings.POSTGRES.url,
+            modules={"models": ["app.models"]},
+        )
+        await Tortoise.generate_schemas()
+
+        try:
+            return await func(*args, **kwargs)
+        finally:
+            await Tortoise.close_connections()
+
+    return wrapper
