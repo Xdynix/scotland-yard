@@ -16,7 +16,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
-    "poethepoet>=0.34.0",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
@@ -24,48 +23,8 @@ dev = [
     "pytest-env>=1.1.5",
     "pytest-mock>=3.14.0",
     "pytest-randomly>=3.16.0",
+    "rust-just>=1.42.4",
 ]
-
-[tool.poe.tasks.dev-setup]
-sequence = [
-    "uv sync",
-    "pre-commit install",
-]
-help = "set up development environment"
-default_item_type = "cmd"
-
-[tool.poe.tasks.lint]
-cmd = "pre-commit run --all-files"
-help = "execute linters"
-
-[tool.poe.tasks.dev]
-cmd = """
-docker compose
-    -f docker-compose.yml
-    -f docker-compose.dev.yml
-    watch
-"""
-help = "start development server"
-
-[tool.poe.tasks.pyshell]
-cmd = "docker compose exec -it app tortoise-cli -c app.settings.TORTOISE_ORM shell"
-help = "start interactive Python shell"
-
-[tool.poe.tasks.dbshell]
-cmd = "docker compose exec -it postgres bash -c 'psql -U $POSTGRES_USER -h localhost'"
-help = "start interactive database shell"
-
-[tool.poe.tasks.test]
-cmd = """
-docker compose
-    -f docker-compose.yml
-    -f docker-compose.test.yml
-    up
-    --abort-on-container-exit
-    --exit-code-from app
-    --build
-"""
-help = "start development server"
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
@@ -143,4 +102,4 @@ exclude_also = [
 ]
 
 [tool.coverage.html]
-directory = ".cache/cov-report"
+directory = "var/cov-report"

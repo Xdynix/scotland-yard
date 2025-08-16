@@ -14,15 +14,16 @@ automatic OpenAPI documentation.
 Prerequisite:
 
 - [uv](https://docs.astral.sh/uv/)
+- [just](https://github.com/casey/just)
 - [Docker](https://docs.docker.com/get-started/get-docker/)
 
-Environment setup: `uv run poe dev-setup`
+Environment setup: `just dev-setup`
 
-Run linters: `uv run poe lint`
+Run linters: `just lint`
 
-Run tests: `uv run poe test`
+Run tests: `just test`
 
-Start development server: `uv run poe dev`
+Start development server: `just dev`
 
 ## Deployment
 

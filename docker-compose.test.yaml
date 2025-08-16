@@ -5,7 +5,7 @@ services:
         INSTALL_DEV_DEPS: "true"
     command: [ "pytest", "--cov", "app" ]
     volumes:
-      - ./.cache:/app/.cache
+      - ./var/cov-report:/app/var/cov-report
 
   postgres:
     volumes:

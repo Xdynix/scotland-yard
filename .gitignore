@@ -2,7 +2,7 @@
 # IDE configurations
 /.idea/
 /.vscode/
-/docker-compose.override.yml
+/docker-compose.override.yaml
 
 ### Linux template
 *~
